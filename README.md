@@ -10,5 +10,5 @@ Note that the code of other authors to generate p-values from other test statist
 I also do not include the financial data analysis, since the data is licensed
 
 
-If you just want to use an implementation of the test, just choose a package that compute the depth values you want to use, e.g., fda.usc and compute the depth values
+If you just want to use an implementation of the test, just choose a package that computes the depth values you want to use, e.g., fda.usc, and compute the depth values
 After you have the depth values, just use the rank test function in R; kruskal.wallis()
