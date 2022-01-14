@@ -5,3 +5,6 @@ See 'Robust nonparametric hypothesis tests for differences in the covariance str
 
 
 Note that the code of other authors to generate p-values from other test statistics is missing, as it is not mine to distribute.
+
+
+I also do not include the financial data analysis, since the data is licensed
