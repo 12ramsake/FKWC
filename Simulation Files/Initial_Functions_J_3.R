@@ -81,7 +81,8 @@ runMVSim<-function(N1=10,N2=10,N3=10,
   
   
   
-  no_cores<-detectCores()-5
+  # no_cores<-detectCores()-5
+  no_cores<-40
   
   cl <- makeCluster(no_cores,type="FORK")   
   registerDoParallel(cl) 
@@ -92,14 +93,13 @@ runMVSim<-function(N1=10,N2=10,N3=10,
   errorsp=inherits(depth_values, "try-error")
   if(errorsp){
     print("there was an error!")
-    
   }
   
   stopCluster(cl)
   registerDoSEQ()
   closeAllConnections()
   
-  dirr=""
+  dirr="/u/k3ramsay/ResearchDocuments/output/Functional Data Covariance Files/"
   save(depth_values,file=paste(dirr,fileName,sep=""))
 }
 

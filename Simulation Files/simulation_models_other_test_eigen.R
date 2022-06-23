@@ -6,8 +6,8 @@
 
 # install.packages("EMMIXskew")
 
-setwd("")
-install.packages(c("Guo/ECF_1.2.tar.gz","fChange_0.2.1.tar.gz"),type="source",repos=NULL)
+setwd("/u/k3ramsay/ResearchDocuments/output/Functional Data Covariance Files/")
+# install.packages("C:/Users/12RAM/OneDrive/Documents/research/PhD Thesis/Functional Data Covariance Files/Other Test Functions/Guo/ECF_1.2.tar.gz",type="source",repos=NULL)
 require(ECF)
 library(EMMIXskew)
 library(fda)
@@ -44,6 +44,7 @@ oneRun<-function(N1,N2,b1,b2,grid=seq( 0, 1, length.out = 100 )){
   
   
   fdat=gen_eigen_model(N1,N2,length(b1),b1,b2)
+  # matplot(t(dat$mdata),type='l')
   dat=list("arg"=grid,"mdata"=t(eval.fd(grid,fdat)))
   #boente
   # source('~/research/PhD Thesis/Functional Data Covariance Files/Boente_MOd.R')
@@ -70,39 +71,88 @@ oneRun<-function(N1,N2,b1,b2,grid=seq( 0, 1, length.out = 100 )){
   
 }
 
-runMVSim<-function(N1,N2,b1,b2,grid,num_runs,fileName){
+
+
+
+
+
+
+
+
+
+oneRun<-function(N1,N2,b1,b2,grid=seq( 0, 1, length.out = 100 )){
   
   
-  # no_cores<-detectCores()-1
   
-  # cl <- makeCluster(no_cores,type="FORK")  
-  # cl <- makeCluster(no_cores)  
-  # registerDoParallel(cl) 
-  # registerDoRNG(seed = 440)
-  set.seed(440)
-  # p_values=try({foreach(i=1:num_runs) %do% {oneRun(N1,N2,b1,b2,grid)}})
+  fdat=gen_eigen_model(N1,N2,length(b1),b1,b2)
+  # matplot(t(dat$mdata),type='l')
+  dat=list("arg"=grid,"mdata"=t(eval.fd(grid,fdat)))
+  #boente
+  # source('~/research/PhD Thesis/Functional Data Covariance Files/Boente_MOd.R')
+  BNT=testoper(grid,dat$mdata[1:N1,],dat$mdata[(N1+1):(N2+N1),],10,5000)$pvalor
+  #guo paper
+
   
-  p_values=try({replicate(num_runs, oneRun(N1,N2,b1,b2,grid))})
+  return(BNT)
   
-  errorsp=inherits(p_values, "try-error")
-  if(errorsp){
-    print("there was an error!")
-    
-  }
   
-  # stopCluster(cl)
-  # registerDoSEQ()
-  # closeAllConnections()
-  
-  dirr="EIGENVALUE/"
-  save(p_values,file=paste(dirr,fileName,sep=""))
-  return(  p_values)
 }
+
+
+
+
+
+
+
+
+
+
+# 
+# runMVSim<-function(N1,N2,b1,b2,grid,num_runs,fileName){
+#   
+#   
+#   # no_cores<-detectCores()-1
+#   
+#   # cl <- makeCluster(no_cores,type="FORK")  
+#   # cl <- makeCluster(no_cores)  
+#   # registerDoParallel(cl) 
+#   # registerDoRNG(seed = 440)
+#   set.seed(440)
+#   # p_values=try({foreach(i=1:num_runs) %do% {oneRun(N1,N2,b1,b2,grid)}})
+#   
+#   p_values=try({replicate(num_runs, oneRun(N1,N2,b1,b2,grid))})
+#   
+#   errorsp=inherits(p_values, "try-error")
+#   if(errorsp){
+#     print("there was an error!")
+#     
+#   }
+#   
+#   # stopCluster(cl)
+#   # registerDoSEQ()
+#   # closeAllConnections()
+#   
+#   dirr="EIGENVALUE/"
+#   save(p_values,file=paste(dirr,fileName,sep=""))
+#   return(  p_values)
+# }
 
 
 N1=N2=25
 num_runs=50
 grid=seq( 0, 1, length.out = 100 )
+
+
+
+fileName=paste0("other_dist_N_k_eigen_null_N_",N1,"_num_runs_200.Rda",sep="")
+
+b1=1:3
+b2=1:3
+runMVSim(N1,N2,b1,b2,grid,num_runs,fileName)
+
+
+
+
 
 
 fileName=paste0("other_dist_N_k_eigen_samesum_N_",N1,"_num_runs_200.Rda",sep="")

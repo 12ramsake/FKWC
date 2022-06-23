@@ -77,7 +77,8 @@ oneRun<-function(N1,N2,c1,c2,res=100,
   
   dat=gfd(N1,N2,Cov1=c1,Cov2=c2,res=res,dist=dist,del=del)
   #boente
-   BNT=testoper(grid,dat$mdata[1:N1,],dat$mdata[(N1+1):(N2+N1),],10,5000)$pvalor
+  # source('~/research/PhD Thesis/Functional Data Covariance Files/Boente_MOd.R')
+  BNT=testoper(grid,dat$mdata[1:N1,],dat$mdata[(N1+1):(N2+N1),],10,5000)$pvalor
   #guo paper
   # require("ECF");
   sample_n=c(N1,N2)
@@ -124,7 +125,7 @@ runMVSim<-function(N1,N2,c1,c2,grid,num_runs,fileName,dist="t",del=0.9){
   closeAllConnections()
   
   # save(p_values,file=fileName)
-  dirr=""
+  dirr="/u/k3ramsay/ResearchDocuments/output/Functional Data Covariance Files/OTHER_TEST_RESULTS/"
   save(p_values,file=paste(dirr,fileName,sep=""))
   # save(p_values,file=paste(dirr,fileName,sep=""))
 }

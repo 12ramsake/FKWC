@@ -30,8 +30,8 @@ simulate_mv_depths<-function(N1,N2,b1,b2){
   fdat=gen_eigen_model(N1,N2,length(b1),b1,b2)
   fderivs=deriv.fd(fdat,1)
   #
-  FSD_depth=spatial_depth(fdat,N1+N2)+spatial_depth(fderivs,N1+N2)
-  KFSD_depth=K_spatial_depth(fdat,N1+N2)+K_spatial_depth(fderivs,N1+N2)
+  # FSD_depth=spatial_depth(fdat,N1+N2)+spatial_depth(fderivs,N1+N2)
+  # KFSD_depth=K_spatial_depth(fdat,N1+N2)+K_spatial_depth(fderivs,N1+N2)
   
   
   
@@ -44,16 +44,24 @@ simulate_mv_depths<-function(N1,N2,b1,b2){
   
 
   
-  fderivs<-fdata(fderivs)
-  fdat=fdata(fdat)
+  fderivs<-fdata(ddat)
+  fdat=fdata(dat)
+  
   #fariman and muniz, really slow
-  RPD_depth=depth.RPD(fdat)$dep
+  data_norms=cbind(c(norm.fdata(fdat)),c(norm.fdata(fderivs)))
+  data_norms=t(apply(data_norms,1,'/',y=apply(data_norms,2,mad)))
+  # data_norms
+  LTR_depth=t(apply(data_norms,2,function(x){1/1+x}))
+  LTR_depth=c(LTR_depth[1,]+LTR_depth[2,])
+
+  
+  RPD_depth=depth.RPD(fdat,dfunc2='mdepth.SD')$dep
+  RPD_depth_like=depth.RPD(fdat)$dep
   FMp_depth=depth.FMp(list("f"=fdat,"f"=fderivs), dfunc = "mdepth.HS")$dep
   comb=mfData(grid,list(dat,ddat))
   MBD_depth=multiMBD(   comb, weights = 'uniform', manage_ties = FALSE )
-  LTR_depth=c(norm.fdata(fdat))+c(norm.fdata(fderivs))
 
-  depths=data.frame(FMp_depth,RPD_depth,MBD_depth,LTR_depth,FSD_depth,KFSD_depth)
+  depths=data.frame(FMp_depth,RPD_depth,MBD_depth,LTR_depth,RPD_depth_like)
   
   return(depths)
   
@@ -66,6 +74,7 @@ runMVSim<-function(N1,N2,b1,b2,grid,num_runs,fileName){
   
 
     no_cores<-detectCores()-1
+    no_cores<-50
     
     cl <- makeCluster(no_cores,type="FORK")   
     registerDoParallel(cl) 
@@ -83,7 +92,7 @@ runMVSim<-function(N1,N2,b1,b2,grid,num_runs,fileName){
     registerDoSEQ()
     closeAllConnections()
     
-    dirr="EIGENVALUE/"
+    dirr="/u/k3ramsay/ResearchDocuments/output/Functional Data Covariance Files/EIGENVALUE/"
     save(depth_values,file=paste(dirr,fileName,sep=""))
   
 }

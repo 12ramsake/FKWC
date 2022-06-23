@@ -52,7 +52,7 @@ gfd<-function(N1=10,N2=10,
     dp2=cp2dp(cp2, "SN")
     
     Data1 = rmsn(N1, dp=dp1)
-    Data2 = rmsn(N1, dp=dp2)
+    Data2 = rmsn(N2, dp=dp2)
   }
   
   return(list(argvals =  grid, mdata=rbind(Data1,Data2)))
@@ -66,7 +66,8 @@ runMVSim<-function(N1,N2,c1,c2,grid,num_runs,fileName,dist="t",del=0.9){
   
 
     no_cores<-detectCores()-1
-    no_cores<-70
+    no_cores<-50
+    # no_cores<-40
     
     cl <- makeCluster(no_cores,type="FORK")   
     registerDoParallel(cl) 
@@ -84,7 +85,7 @@ runMVSim<-function(N1,N2,c1,c2,grid,num_runs,fileName,dist="t",del=0.9){
     registerDoSEQ()
     closeAllConnections()
     
-    dirr=""
+    dirr="/u/k3ramsay/ResearchDocuments/output/Functional Data Covariance Files/"
     save(depth_values,file=paste(dirr,fileName,sep=""))
   # }
 }

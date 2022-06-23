@@ -1,12 +1,10 @@
-#install fchange manually
-
+# install.packages("fChange_0.2.1.tar.gz",type="source",repos=NULL)
 library(fChange)
 library(EMMIXskew)
 library(fda)
 library(roahd)
 library(mvtnorm)
 library(fdasrvf)
-library(fda.usc)
 library(doParallel)
 library(MFHD)
 library(mrfDepth)
@@ -25,35 +23,45 @@ gen_eigen_model<-function(N1,N2,nbasis=55,b1=rep(1,nbasis),b2=rep(1,nbasis)){
   
 }
 
-#simulate data and the resulting depths using the noderivative
+#simulate data and the resulting depths using the derivative
 #simulat
 simulate_mv_depths<-function(N1,N2,b1,b2){
   
   fdat=gen_eigen_model(N1,N2,length(b1),b1,b2)
-  # fderivs=deriv.fd(fdat,1)
+  fderivs=deriv.fd(fdat,1)
   #
+  # FSD_depth=spatial_depth(fdat,N1+N2)+spatial_depth(fderivs,N1+N2)
+  # KFSD_depth=K_spatial_depth(fdat,N1+N2)+K_spatial_depth(fderivs,N1+N2)
+  # 
+  
+  
   grid=seq(0,1,length.out=100)
   dat=t(eval.fd(grid,fdat))
-  # ddat=t(eval.fd(grid, fderivs))
-  fdat<-fdata(dat,grid)
-  # noderivs<-noderivcurves(dat$mdata)
-  # fnoderivs<-fdata(noderivs,dat$argvals)
+  ddat=t(eval.fd(grid, fderivs))
+  # fdat<-fdata(dat$mdata,dat$argvals)
+  # derivs<-derivcurves(dat$mdata)
+  # fderivs<-fdata(derivs,dat$argvals)
   
-  RPD_depth=depth.RP(fdat,dfunc = "Liu1")$dep
+  fderivs<-fdata(ddat,grid)
+  fdat=fdata(dat,grid)
   
-
+  # fderivs<-fdata(fderivs)
   # fdat=fdata(fdat)
   #fariman and muniz, really slow
-  FMp_depth=depth.FM(fdat)$dep
-
-  MBD_depth=MBD(dat)
-  # fdat=fdata2fd(fdat)
-  # FSD_depth=spatial_depth(fdat,N1+N2)
-  # KFSD_depth=K_spatial_depth(fdat,N1+N2)
+  RPD_depth_SD=depth.RPD(fdat,dfunc2='mdepth.SD')$dep
+  # plot(RPD_depth_SD,col=rep(c(1,2),each=100))
+  # comb=mfData(grid,list(dat,ddat))
+  data_norms=cbind(c(norm.fdata(fdat)),c(norm.fdata(fderivs)))
+  data_norms=t(apply(data_norms,1,'/',y=apply(data_norms,2,mad)))
+  # data_norms
+  LTR_depth=t(apply(data_norms,2,function(x){1/1+x}))
+  LTR_depth_HD=c(LTR_depth[1,]+LTR_depth[2,])
   
-  LTR_depth= c(norm.fdata(fdat))
   
-  depths=data.frame(FMp_depth,RPD_depth,MBD_depth , LTR_depth)
+  
+  # plot(LTR_depth_HD,col=rep(c(1,2),each=100))
+  
+  depths=data.frame(RPD_depth_SD,LTR_depth_HD)
   
   return(depths)
   
@@ -65,8 +73,7 @@ simulate_mv_depths<-function(N1,N2,b1,b2){
 runMVSim<-function(N1,N2,b1,b2,grid,num_runs,fileName){
   
 
-    # no_cores<-detectCores()-1
-    no_cores<-50
+    no_cores<-detectCores()-1
     
     cl <- makeCluster(no_cores,type="FORK")   
     registerDoParallel(cl) 
@@ -101,17 +108,17 @@ grid=seq( 0, 1, length.out = 100 )
 b1=c(1,2,3)
 b2=c(3,2,1)
 
-fileName=paste0("allD_dist_N_noderiv_depths_k_eigen_1_samesum_N_",N1,"_num_runs_200.Rda",sep="")
+fileName=paste0("allD_dist_N_deriv_SIM_TD_k_eigen_1_samesum_N_",N1,"_num_runs_200.Rda",sep="")
 runMVSim(N1,N2,b1,b2,grid,num_runs,fileName)
 
 b1=1:11
 b2=11:1
-fileName=paste0("allD_dist_N_noderiv_depths_k_eigen_2_samesum_N_",N1,"_num_runs_200.Rda",sep="")
+fileName=paste0("allD_dist_N_deriv_SIM_TD_k_eigen_2_samesum_N_",N1,"_num_runs_200.Rda",sep="")
 runMVSim(N1,N2,b1,b2,grid,num_runs,fileName)
 
 b1=2^b1
 b2=2^b2
-fileName=paste0("allD_dist_N_noderiv_depths_k_eigen_3_samesum_N_",N1,"_num_runs_200.Rda",sep="")
+fileName=paste0("allD_dist_N_deriv_SIM_TD_k_eigen_3_samesum_N_",N1,"_num_runs_200.Rda",sep="")
 runMVSim(N1,N2,b1,b2,grid,num_runs,fileName)
 
 
@@ -121,35 +128,36 @@ N1=N2=100
 b1=c(1,2,3)
 b2=c(3,2,1)
 
-fileName=paste0("allD_dist_N_noderiv_depths_k_eigen_1_samesum_N_",N1,"_num_runs_200.Rda",sep="")
+fileName=paste0("allD_dist_N_deriv_SIM_TD_k_eigen_1_samesum_N_",N1,"_num_runs_200.Rda",sep="")
 runMVSim(N1,N2,b1,b2,grid,num_runs,fileName)
 
 b1=1:11
 b2=11:1
-fileName=paste0("allD_dist_N_noderiv_depths_k_eigen_2_samesum_N_",N1,"_num_runs_200.Rda",sep="")
+fileName=paste0("allD_dist_N_deriv_SIM_TD_k_eigen_2_samesum_N_",N1,"_num_runs_200.Rda",sep="")
 runMVSim(N1,N2,b1,b2,grid,num_runs,fileName)
 
 b1=2^b1
 b2=2^b2
-fileName=paste0("allD_dist_N_noderiv_depths_k_eigen_3_samesum_N_",N1,"_num_runs_200.Rda",sep="")
+fileName=paste0("allD_dist_N_deriv_SIM_TD_k_eigen_3_samesum_N_",N1,"_num_runs_200.Rda",sep="")
 runMVSim(N1,N2,b1,b2,grid,num_runs,fileName)
+
 
 N1=N2=50
 
 b1=c(1,2,3)
 b2=b1*1.5
 
-fileName=paste0("allD_dist_N_noderiv_depths_k_eigen_21_samesum_N_",N1,"_num_runs_200.Rda",sep="")
+fileName=paste0("allD_dist_N_deriv_SIM_TD_k_eigen_21_samesum_N_",N1,"_num_runs_200.Rda",sep="")
 runMVSim(N1,N2,b1,b2,grid,num_runs,fileName)
 
 b1=1:11
 b2=b1*1.5
-fileName=paste0("allD_dist_N_noderiv_depths_k_eigen_22_samesum_N_",N1,"_num_runs_200.Rda",sep="")
+fileName=paste0("allD_dist_N_deriv_SIM_TD_k_eigen_22_samesum_N_",N1,"_num_runs_200.Rda",sep="")
 runMVSim(N1,N2,b1,b2,grid,num_runs,fileName)
 
 b1=2^b1
 b2=b1*1.5
-fileName=paste0("allD_dist_N_noderiv_depths_k_eigen_23_samesum_N_",N1,"_num_runs_200.Rda",sep="")
+fileName=paste0("allD_dist_N_deriv_SIM_TD_k_eigen_23_samesum_N_",N1,"_num_runs_200.Rda",sep="")
 runMVSim(N1,N2,b1,b2,grid,num_runs,fileName)
 
 
@@ -159,16 +167,17 @@ N1=N2=100
 b1=c(1,2,3)
 b2=b1*1.5
 
-fileName=paste0("allD_dist_N_noderiv_depths_k_eigen_21_samesum_N_",N1,"_num_runs_200.Rda",sep="")
+fileName=paste0("allD_dist_N_deriv_SIM_TD_k_eigen_21_samesum_N_",N1,"_num_runs_200.Rda",sep="")
 runMVSim(N1,N2,b1,b2,grid,num_runs,fileName)
 
 b1=1:11
 b2=b1*1.5
-fileName=paste0("allD_dist_N_noderiv_depths_k_eigen_22_samesum_N_",N1,"_num_runs_200.Rda",sep="")
+fileName=paste0("allD_dist_N_deriv_SIM_TD_k_eigen_22_samesum_N_",N1,"_num_runs_200.Rda",sep="")
 runMVSim(N1,N2,b1,b2,grid,num_runs,fileName)
 
 b1=2^b1
 b2=b1*1.5
-fileName=paste0("allD_dist_N_noderiv_depths_k_eigen_23_samesum_N_",N1,"_num_runs_200.Rda",sep="")
+fileName=paste0("allD_dist_N_deriv_SIM_TD_k_eigen_23_samesum_N_",N1,"_num_runs_200.Rda",sep="")
 runMVSim(N1,N2,b1,b2,grid,num_runs,fileName)
+
 

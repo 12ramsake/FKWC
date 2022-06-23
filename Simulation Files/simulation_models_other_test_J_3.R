@@ -1,6 +1,4 @@
 
-#You need the code from the other authors for this one
-
 # install.packages("EMMIXskew")
 # library(EMMIXskew)
 library(sn)
@@ -87,7 +85,8 @@ oneRun<-function(N1,N2,N3,c1,c2,c3,res=100,
   
   dat=gfd_k_3(N1,N2,N3,Cov1=c1,Cov2=c2,Cov3=c3,res=res,dist=dist,del=del)
   #boente
-   BNT=testoper3P(grid,dat$mdata[1:N1,],dat$mdata[(N1+1):(N2+N1),],dat$mdata[(N2+N1+1):(N2+N1+N3),],10,5000)$pvalor
+  # source('~/research/PhD Thesis/Functional Data Covariance Files/Other Test Functions/Boente/programas20153P.R')
+  BNT=testoper3P(grid,dat$mdata[1:N1,],dat$mdata[(N1+1):(N2+N1),],dat$mdata[(N2+N1+1):(N2+N1+N3),],10,5000)$pvalor
   #guo paper
   # require("ECF");
   sample_n=c(N1,N2,N3)
@@ -131,7 +130,7 @@ runMVSim<-function(N1,N2,N3,c1,c2,c3,grid,num_runs,fileName,dist="t",del=0.9){
   stopCluster(cl)
   registerDoSEQ()
   closeAllConnections()
-  dirr="~/OTHER_TEST_RESULTS/"
+  dirr="/u/k3ramsay/ResearchDocuments/output/Functional Data Covariance Files/OTHER_TEST_RESULTS/"
   save(p_values,file=paste(dirr,fileName,sep=""))
   # dirr="Functional Data Covariance Files/Two_Sample_Depths_Cov_Kernels/"
   # save(p_values,file=paste(dirr,fileName,sep=""))
